@@ -1,6 +1,7 @@
 #!/bin/bash
 # nyanbook-runner — Load env, run script, then clear
-# Usage: ./lib/nyanbook/runner.sh node ./lib/nyan-sync.js
+# Usage: ./lib/nyanbook/runner.sh node ./lib/sync/workspace-sync.js
+# (lib/nyan-sync.js + lib/nyanbook-sync.js shims removed — see FIX #13)
 
 # Try to load from env.nyanbook in workspace root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -1,0 +1,16 @@
+{
+  "name": "openclaw-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenClaw agent harness — fixes-only review branch (10nc3/2ndreview)",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "sync": "node lib/sync/workspace-sync.js",
+    "health:nyanbook": "bash bin/nyanbook-health",
+    "smoke:syntax": "node -e \"['lib/nyanbook/config','lib/nyanbook/ledger','lib/nyanbook/playground','lib/nyanbook/cascade','lib/context-router','lib/pipeline-state','lib/strike-chain','lib/phi-memory','lib/memory-compress','lib/cascade-index','lib/search-cascade','lib/math-cascade','lib/model-cascade','lib/pdf-cascade','lib/log','lib/sync/workspace-sync'].forEach(p=>{try{require('./'+p);console.log('ok',p)}catch(e){console.error('FAIL',p,e.message);process.exitCode=1}})",
+    "test": "npm run smoke:syntax"
+  }
+}

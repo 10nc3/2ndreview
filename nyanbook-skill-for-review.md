@@ -8,7 +8,8 @@ lib/nyanbook/
 ├── playground.js    # AI inference client — requires Bearer token
 └── ledger.js        # Append-only storage — two books, separate tokens
 
-lib/nyan-sync.js    # DUAL sync: local memory/NYAN_SYNC_LOG.md + remote book_2
+lib/sync/workspace-sync.js   # DUAL sync: local memory/NYAN_SYNC_LOG.md + remote book_2
+                             # (replaces removed lib/nyan-sync.js + lib/nyanbook-sync.js shims — FIX #13)
 lib/nyan-router.js  # Thin re-export wrapper (legacy compat)
 ```
 

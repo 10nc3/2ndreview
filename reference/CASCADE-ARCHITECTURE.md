@@ -1,4 +1,19 @@
-# Cascade Architecture v1.3
+# Cascade Architecture v1.4
+
+<!-- FIX #33: Configuration paths now reflect what the code actually loads.
+     `.env.nyanbook` is parsed by `lib/nyanbook/config.js`; everything else is
+     read via `process.env`. There is no `~/.openclaw/.env` auto-loader. -->
+
+## Configuration sources
+
+| Source | Loaded by | Keys |
+|---|---|---|
+| `process.env` | every cascade module | all keys |
+| `.env.nyanbook` (repo root) | `lib/nyanbook/config.js` | `NYAN_*`, `NYANBOOK_*` |
+
+If you want `~/.openclaw/.env` style loading, source it from your shell rc
+(`set -a; . ~/.openclaw/.env; set +a`) before running the agent.
+
 
 Graceful degradation across all external tools. Expensive/detailed first, cheap/free last.
 
@@ -27,7 +42,9 @@ const { results, source, tier, lossy, fallbackTrail } = await cascades.search("s
 
 ### Configuration
 
-Perplexity requires `PPLX_API_KEY` in `~/.openclaw/.env`.
+Perplexity auto-enables when `PPLX_API_KEY` is present in the environment
+(see *Configuration sources* above). When unset, the tier is disabled and
+the cascade skips straight to Brave/DDG.
 
 ---
 
@@ -50,7 +67,8 @@ const { result, tier, deterministic } = await cascades.math("700 * 1500 / 12000"
 
 ### Configuration
 
-Wolfram requires `WOLFRAM_APP_ID` in `~/.openclaw/.env`.
+Wolfram requires `WOLFRAM_APP_ID` in the environment (see *Configuration
+sources* above).
 
 ---
 
@@ -86,7 +104,7 @@ Uses `lib/strike-chain.js`: 3 failures → demote, 5min cooldown → auto-recove
 
 | Tier | Tool | Quality | Requirement |
 |------|------|---------|-------------|
-| 1 | pdftotext (poppler) | High | `brew install poppler` |
+| 1 | pdftotext (poppler) | High | `brew install poppler` *(macOS)* or `apt-get install poppler-utils` *(Linux)*. Override binary via `PDFTOTEXT_BIN`. |
 | 2 | nano-pdf skill | Medium | Already enabled |
 | 3 | Raw heuristic | Low | No requirements |
 
@@ -120,7 +138,7 @@ const status = cascades.getStatus();
 //   search: { tiers: [...] },
 //   math: { wolfram: { available: false }, localMath: [...] },
 //   model: { tiers: [...], strikes: {...} },
-//   pdf: { tiers: [...], ready: true }
+//   pdf: { tiers: [...], pdftotext: { bin, available }, ready: true }
 // }
 ```
 
