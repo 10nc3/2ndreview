@@ -1,0 +1,36 @@
+{
+  "accessGroups": {
+    "owner": {
+      "type": "message.senders",
+      "members": {
+        "*": ["whatsapp:OWNER_WHATSAPP_NUMBER"],
+        "discord": ["discord:OWNER_DISCORD_ID"]
+      }
+    },
+    "scribes": {
+      "type": "message.senders",
+      "members": {
+        "*": ["whatsapp:OWNER_WHATSAPP_NUMBER"],
+        "discord": ["discord:OWNER_DISCORD_ID"]
+      }
+    }
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "token": "DISCORD_BOT_TOKEN",
+      "groupPolicy": "allowlist",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["accessGroup:owner", "accessGroup:scribes"],
+      "guilds": {
+        "GUILD_ID_PLACEHOLDER": {
+          "requireMention": true,
+          "ignoreOtherMentions": true
+        }
+      }
+    },
+    "whatsapp": {
+      "enabled": true
+    }
+  }
+}

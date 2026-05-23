@@ -1,0 +1,45 @@
+{
+  "lastUpdated": "2026-05-22",
+  "verifiedBy": "Zeno (rekap-4mei + manual verification)",
+  "source": "manual-rekap-4mei-sumatera",
+  "focusZones": ["Sumatera"],
+  "zones": {
+    "Sumatera-Group-A": {
+      "provinces": "Aceh, Sumatera Utara, Jambi, Bengkulu, Sumatera Selatan, Bangka Belitung, Lampung",
+      "prices": {
+        "Pertalite": 10000,
+        "Pertamax": 12600,
+        "Pertamax Turbo": 20350,
+        "Pertamax Green 95": null,
+        "Dexlite": 26600,
+        "Pertamina Dex": 28500,
+        "Bio Solar": 6800
+      }
+    },
+    "Sumatera-Group-B": {
+      "provinces": "Sumatera Barat, Riau, Kepulauan Riau",
+      "prices": {
+        "Pertalite": 10000,
+        "Pertamax": 12900,
+        "Pertamax Turbo": 20750,
+        "Pertamax Green 95": null,
+        "Dexlite": 27150,
+        "Pertamina Dex": 29100,
+        "Bio Solar": 6800
+      }
+    },
+    "FTZ-Sabang": {
+      "provinces": "Sabang (FTZ)",
+      "prices": {
+        "Pertalite": 10000,
+        "Pertamax": 11550,
+        "Pertamax Turbo": null,
+        "Pertamax Green 95": null,
+        "Dexlite": 24400,
+        "Pertamina Dex": null,
+        "Bio Solar": 6800
+      }
+    }
+  },
+  "lastNotifiedAt": null
+}

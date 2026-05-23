@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "description": "Reminder seeds. The mother cron evals these and spawns one-shot crons 0-48h ahead. Types: once, annual, rolling.",
+  "seeds": [
+    {
+      "id": "example-once",
+      "enabled": false,
+      "type": "once",
+      "label": "Example one-shot reminder",
+      "at": "2026-06-01T09:00:00+07:00",
+      "message": "This is an example. Enable by setting enabled=true.",
+      "delivery": {
+        "channel": "discord",
+        "to": "user:372143308148965386"
+      }
+    },
+    {
+      "id": "example-annual",
+      "enabled": false,
+      "type": "annual",
+      "label": "Example annual reminder",
+      "month": 4,
+      "day": 15,
+      "leadDays": 7,
+      "message": "Annual thing to remember.",
+      "delivery": {
+        "channel": "discord",
+        "to": "user:372143308148965386"
+      }
+    },
+    {
+      "id": "example-rolling",
+      "enabled": false,
+      "type": "rolling",
+      "label": "Example rolling reminder",
+      "anchor": "last_bbm_change",
+      "intervalDays": 14,
+      "message": "Two weeks since last BBM price change.",
+      "delivery": {
+        "channel": "discord",
+        "to": "user:372143308148965386"
+      }
+    }
+  ]
+}

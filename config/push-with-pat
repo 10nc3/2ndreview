@@ -1,0 +1,50 @@
+#!/bin/zsh
+# push-with-pat - Secure git push helper
+# Usage: ./push-with-pat [git-push-args]
+
+set -e
+
+REPO_ROOT="${OPENCLAW_WORKSPACE:-$HOME/.openclaw/workspace}"
+ENV_FILE="$HOME/.openclaw/.env"
+
+if [[ ! -f "$ENV_FILE" ]]; then
+    echo "Error: $ENV_FILE not found. PAT not stored."
+    exit 1
+fi
+
+# Derive repo slug from git remote
+REMOTE_URL=$(cd "$REPO_ROOT" && git remote get-url origin 2>/dev/null || echo "")
+if [[ -z "$REMOTE_URL" ]]; then
+    echo "Error: no git remote configured in $REPO_ROOT"
+    exit 1
+fi
+
+# Extract owner/repo from HTTPS or SSH remote
+# Handles: https://github.com/owner/repo.git or git@github.com:owner/repo.git
+# Also handles URLs with embedded PAT from previous runs
+REPO_SLUG=$(echo "$REMOTE_URL" | sed -E 's|.*github.com[/:]([^/]+/[^/]+).*|\1|' | sed 's/\.git$//')
+if [[ -z "$REPO_SLUG" ]]; then
+    echo "Error: could not parse repo slug from remote: $REMOTE_URL"
+    exit 1
+fi
+
+# Load PAT from secure env file
+PAT=$(grep "GITHUB_PAT_10NC3_2NDTRY" "$ENV_FILE" | cut -d= -f2 | tr -d '[:space:]')
+
+if [[ -z "$PAT" ]]; then
+    echo "Error: GITHUB_PAT_10NC3_2NDTRY not found in $ENV_FILE"
+    exit 1
+fi
+
+cd "$REPO_ROOT"
+
+# Temporarily set remote with PAT
+git remote set-url origin "https://10nc3:${PAT}@github.com/${REPO_SLUG}.git"
+
+# Push with any extra args passed through
+git push "$@"
+
+# Scrub PAT from remote immediately
+git remote set-url origin "https://github.com/${REPO_SLUG}.git"
+
+echo "✅ Pushed. PAT scrubbed from remote."

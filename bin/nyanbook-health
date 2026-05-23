@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+/**
+ * nyanbook-health — Quick diagnostic
+ * Shows: token status, ledger read/write, playground reachability
+ */
+
+const path = require('path');
+const { health, guard } = require(path.resolve(__dirname, '../lib/nyanbook/config'));
+const { ledgerHealth } = require(path.resolve(__dirname, '../lib/nyanbook/ledger'));
+
+async function main() {
+  console.log('🜁 Nyanbook Health Check\n');
+
+  // Config status
+  const h = health();
+  console.log('─'.repeat(50));
+  console.log('CONFIG');
+  console.log('─'.repeat(50));
+  console.log(`Env file:      ${h.envFile}`);
+  console.log(`Playground:    ${h.playground.ready ? '✅' : '❌'} ${h.playground.token}`);
+  console.log(`Book 1 (DC):   ${h.book1.ready ? '✅' : '❌'} ${h.book1.token}`);
+  console.log(`Book 2 (2nd):  ${h.book2.ready ? '✅' : '❌'} ${h.book2.token}`);
+
+  // Ledger read test
+  console.log('\n' + '─'.repeat(50));
+  console.log('LEDGER READ/WRITE');
+  console.log('─'.repeat(50));
+
+  try {
+    const lh = await ledgerHealth();
+    console.log(`Book 1 read:   ${lh.book1.ok ? '✅' : '❌'} ${lh.book1.messages || lh.book1.error}`);
+    console.log(`Book 2 read:   ${lh.book2.ok ? '✅' : '❌'} ${lh.book2.messages || lh.book2.error}`);
+    console.log(`\nOverall:      ${lh.ready ? '🟢 READY' : '🔴 DEGRADED'}`);
+  } catch (e) {
+    console.log(`\nError: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+main();

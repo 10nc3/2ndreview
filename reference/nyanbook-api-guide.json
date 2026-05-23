@@ -1,0 +1,144 @@
+{
+  "name": "Nyan AI API",
+  "version": "v1",
+  "description": "LLM-powered query API with built-in web search, audit verification, and optional BYOK (Bring Your Own Key) watchtower mode.",
+  "base_url": "https://nyanbook.io",
+  "auth": {
+    "type": "Bearer token",
+    "header": "Authorization: Bearer <token>",
+    "note": "Token must match NYAN_OUTBOUND_API or NYAN_OUTBOUND_API_DEV configured on the server. No token required for /health or /guide."
+  },
+  "rate_limits": {
+    "default": "60 requests/minute per IP",
+    "psi_ema": "60 requests/minute per IP"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/nyan",
+      "auth_required": true,
+      "description": "Submit a query to the full AI pipeline. Runs preflight routing, optional web search, LLM reasoning, and a two-pass audit. Returns a single JSON response.",
+      "request": {
+        "content_type": "application/json",
+        "max_body_mb": 50,
+        "fields": {
+          "message": {
+            "type": "string",
+            "required": true,
+            "max_chars": 4000,
+            "description": "Your query or instruction."
+          },
+          "photos": {
+            "type": "array<base64_string|{name,data}>",
+            "required": false,
+            "max_count": 5,
+            "max_size_mb_each": 10,
+            "formats": ["jpeg", "png", "webp"],
+            "description": "Images for vision analysis."
+          },
+          "documents": {
+            "type": "array<{name,data,type}>",
+            "required": false,
+            "max_count": 5,
+            "max_size_mb_each": 20,
+            "formats": ["pdf", "xlsx", "docx", "csv", "txt"],
+            "description": "Documents to parse and include in context."
+          },
+          "byok": {
+            "type": "object",
+            "required": false,
+            "description": "BYOK Watchtower — your model key handles S2 reasoning, NyanBook's key always handles S3 audit verification.",
+            "fields": {
+              "api_key": { "type": "string", "required": true },
+              "model": { "type": "string", "required": true },
+              "base_url": { "type": "string", "required": false, "description": "Must start with https://. Defaults to Groq endpoint." }
+            }
+          }
+        }
+      },
+      "response": {
+        "success": true,
+        "response": "string — final verified answer",
+        "mode": "string — detected query mode",
+        "source": "string — 'llm' | 'search' | 'atomic:*'",
+        "badge": "string — 'verified' | 'fixable' | 'unverified' | 'rejected'",
+        "confidence": "number|null — audit confidence 0–1",
+        "processingMs": "number",
+        "audit": { "confidence": "number|null", "verdict": "string", "passCount": "number", "didSearchRetry": "boolean" },
+        "byok_used": "boolean — present only when byok block was supplied",
+        "draft": "string|null — original answer before correction; present when byok_used=true and badge≠verified",
+        "ticker": "string — present for psi-ema/forex",
+        "psiEma": "object — present for psi-ema",
+        "vision": "boolean — present when photos submitted",
+        "documentsProcessed": "number — present when documents submitted"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/nyan/psi-ema",
+      "auth_required": true,
+      "description": "Pure Psi-EMA calculation — no LLM, no web search. Returns technical analysis (θ, z-score, R-ratio)."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/nyan/health",
+      "auth_required": false,
+      "description": "Quick liveness check. Returns server status, supported modes, and endpoint list."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/nyan/guide",
+      "auth_required": false,
+      "description": "Full API reference for agents and integrators."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/nyan/diagnostics",
+      "auth_required": true,
+      "description": "System diagnostics — DB health, LLM provider status, Discord bots, memory, uptime."
+    }
+  ],
+  "modes": {
+    "general": "Open-ended questions, news, science, history, current events. Triggers web search when needed.",
+    "seed-metric": "Property affordability index — price/sqm, income, years-to-own for cities.",
+    "psi-ema": "Stock technical analysis (θ/z/R). Include ticker symbol or use /psi-ema endpoint.",
+    "forex": "Currency conversion and exchange rates.",
+    "legal": "Legal analysis and contract interpretation.",
+    "chemistry": "Chemistry, pharmacology, molecular analysis.",
+    "code-audit": "Code review, security analysis, debugging."
+  },
+  "badges": {
+    "verified": "Audit passed — answer confirmed against sources or logic.",
+    "fixable": "Audit found issues and applied corrections. Final answer is corrected version.",
+    "unverified": "Audit could not confirm or deny — answer delivered as-is.",
+    "rejected": "Answer rejected after max retries. May be refusal or best-effort fallback."
+  },
+  "errors": {
+    "400": "Invalid request",
+    "401": "Missing/invalid Bearer token",
+    "429": "Rate limit exceeded (60 req/min)",
+    "500": "Internal pipeline error — retry safe",
+    "503": "Server busy — retry after delay"
+  },
+  "byok_watchtower": {
+    "summary": "Your key for S2 reasoning. NyanBook's key always runs S3 audit.",
+    "flow": [
+      "S2 Reasoning → your key + your model",
+      "S3 Audit → NyanBook key (always)",
+      "Response includes byok_used:true",
+      "If badge≠verified, response includes draft (original answer before correction)"
+    ],
+    "supported_providers": [
+      "Groq (https://api.groq.com/openai/v1)",
+      "OpenRouter (https://openrouter.ai/api/v1)",
+      "OpenAI (https://api.openai.com/v1)",
+      "Any OpenAI-compatible endpoint over https://"
+    ]
+  },
+  "changelog": [
+    { "version": "v1.2", "date": "2026-05", "change": "BYOK Watchtower" },
+    { "version": "v1.1", "date": "2026-04", "change": "Psi-EMA endpoint, compound queries" },
+    { "version": "v1.0", "date": "2026-01", "change": "Initial release" }
+  ],
+  "cached_at": "2026-05-23T06:15:42Z"
+}

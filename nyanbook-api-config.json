@@ -1,0 +1,32 @@
+{
+  "playground": {
+    "endpoint": "https://nyanbook.replit.app",
+    "auth": "Bearer ***REDACTED***",
+    "authRequired": true,
+    "modes": ["general", "psi-ema", "seed-metric", "chemistry", "legal", "code-audit", "forex"],
+    "paths": {
+      "query": "POST /api/v1/nyan",
+      "psiEma": "POST /api/v1/nyan/psi-ema",
+      "health": "GET /api/v1/nyan/health"
+    },
+    "role": "AI inference — LLM-powered responses, math tools, grounding data"
+  },
+  "ledger": {
+    "endpoint": "https://nyanbook.io/api/webhook/dev_book_t1_d19b12da5c19",
+    "auth": null,
+    "authRequired": false,
+    "bookId": "dev_book_t1_d19b12da5c19",
+    "role": "Append-only storage — messages, media, data, sync checkpoints",
+    "note": "Open webhook; accepts any/no auth. Use separate book per agent to avoid pollution."
+  },
+  "relay": {
+    "bot": "Hermes",
+    "flow": "Twilio SMS → nyanbook.io webhook → Discord UI",
+    "externalSenderLabel": "External APP"
+  },
+  "sync": {
+    "cronJob": "f9870d19-92b0-4d84-98cc-1bfc9674e740",
+    "strategy": "DUAL: always local (memory/NYAN_SYNC_LOG.md) + remote (ledger webhook)",
+    "frequency": "*/30 * * * *"
+  }
+}
