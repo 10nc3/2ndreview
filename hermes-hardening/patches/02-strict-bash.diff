@@ -1,0 +1,15 @@
+--- a/setup-hermes.sh
++++ b/setup-hermes.sh
+@@ -17,7 +17,11 @@
+ # 6. Runs the setup wizard (optional)
+ # ============================================================================
+
+-set -e
++# FIX4 #2: -u catches typos in env var names that would otherwise expand to
++# empty and silently misconfigure the install; -o pipefail prevents any
++# future `cmd | tail` from masking a non-zero exit. The script already uses
++# ${VAR:-} defensively in the places that legitimately tolerate unset vars.
++set -euo pipefail
+
+ # Colors
+ GREEN='\033[0;32m'

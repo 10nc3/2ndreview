@@ -1,0 +1,30 @@
+--- a/setup-hermes.sh
++++ b/setup-hermes.sh
+@@ -80,6 +80,18 @@ else
+     if [ -n "$UV_CMD" ]; then
+         UV_VERSION=$($UV_CMD --version 2>/dev/null)
+         echo -e "${GREEN}✓${NC} uv found ($UV_VERSION)"
+     else
+         echo -e "${CYAN}→${NC} Installing uv..."
++        # FIX4 #1: pin install.sh to a known-good SHA256 so a compromised
++        # astral.sh (or a DNS-poisoned mirror for one user) can't ship
++        # attacker-controlled shell into every fresh hermes setup. Override
++        # via HERMES_UV_INSTALL_SHA256= to roll forward without a code change.
++        : "${HERMES_UV_INSTALL_SHA256:=REPLACE_ME_WITH_CURRENT_SHA256_OF_INSTALL_SH}"
+         # Capture installer output so a failure shows the user WHY ...
+         _uv_log="$(mktemp 2>/dev/null || echo "/tmp/hermes-uv-install.$$.log")"
+         _uv_installer="$(mktemp 2>/dev/null || echo "/tmp/hermes-uv-installer.$$.sh")"
+         if ! curl -LsSf https://astral.sh/uv/install.sh -o "$_uv_installer" 2>"$_uv_log"; then
+             ...
+         fi
++        # FIX4 #1 (cont): verify before exec
++        _actual_sha="$(sha256sum "$_uv_installer" 2>/dev/null | awk '{print $1}')"
++        if [ "$HERMES_UV_INSTALL_SHA256" != "SKIP" ] && [ "$_actual_sha" != "$HERMES_UV_INSTALL_SHA256" ]; then
++            echo -e "${RED}✗${NC} uv installer SHA256 mismatch."
++            echo "    expected: $HERMES_UV_INSTALL_SHA256"
++            echo "    actual:   $_actual_sha"
++            echo "    To bypass (NOT RECOMMENDED): HERMES_UV_INSTALL_SHA256=SKIP $0"
++            rm -f "$_uv_log" "$_uv_installer"
++            exit 1
++        fi
+         if sh "$_uv_installer" >>"$_uv_log" 2>&1; then
